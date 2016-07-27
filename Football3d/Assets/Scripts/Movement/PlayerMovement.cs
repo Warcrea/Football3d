@@ -41,20 +41,20 @@ public class PlayerMovement : MonoBehaviour {
     void Update() {
         float vertical = 0;
         float horizontal = 0;
-        float shoot = 0;
-        float pass = 0;
+        float trigger = 0;
+        bool bumper = false;
 
         if (playerNumber == 1) {
-            vertical = Input.GetAxisRaw("Vertical");
-            horizontal = Input.GetAxisRaw("Horizontal");
-            shoot = Input.GetAxisRaw("Fire1");
-            pass = Input.GetAxisRaw("Pass1");
+            vertical = Input.GetAxisRaw("Team1Player1Vertical");
+            horizontal = Input.GetAxisRaw("Team1Player1Horizontal");
+            trigger = Input.GetAxisRaw("Team1Player1Trigger");
+            bumper = Input.GetButtonDown("Team1Player1Bumper");
         }
         else if (playerNumber == 2) {
-            vertical = Input.GetAxisRaw("Vertical 2");
-            horizontal = Input.GetAxisRaw("Horizontal 2");
-            shoot = Input.GetAxisRaw("Fire2");
-            pass = Input.GetAxisRaw("Pass2");
+            vertical = Input.GetAxisRaw("Team1Player2Vertical");
+            horizontal = Input.GetAxisRaw("Team1Player2Horizontal");
+            trigger = Input.GetAxisRaw("Team1Player2Trigger");
+            bumper = Input.GetButtonDown("Team1Player2Bumper");
         }
         
         MovementManagement(horizontal, vertical);
@@ -62,12 +62,14 @@ public class PlayerMovement : MonoBehaviour {
         
         if (state == States.none) { CheckForBall(); }
         else if(state == States.dribbling) {
-            if (shoot > 0) {
+
+            if (trigger > 0) {
                 Shoot();
             }
-            else if (pass > 0) {
+            else if (bumper) {
                 Pass();
             }
+            
         }
         else if (state == States.turningToPass) {
             if (angleToTeammate > 165 && angleToTeammate < 180) {
@@ -84,9 +86,9 @@ public class PlayerMovement : MonoBehaviour {
 
         //Update speeds based on input
         if (horizontal > 0) {
-            horizSpeed = Mathf.Min(maxSpeed, horizSpeed + acceleration);
+            horizSpeed = Mathf.Min(maxSpeed, (horizSpeed + acceleration) * horizontal);
         } else if (horizontal < 0) {
-            horizSpeed = Mathf.Max(-maxSpeed, horizSpeed - acceleration);
+            horizSpeed = Mathf.Max(-maxSpeed, (horizSpeed - acceleration) * -horizontal);
         }
         else {
             if (horizSpeed > 0) horizSpeed = Mathf.Max(0, horizSpeed - deceleration);
@@ -94,10 +96,10 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         if (vertical > 0) {
-            verticSpeed = Mathf.Min(maxSpeed, verticSpeed + acceleration);
+            verticSpeed = Mathf.Min(maxSpeed, (verticSpeed + acceleration) * vertical);
         }
         else if (vertical < 0) {
-            verticSpeed = Mathf.Max(-maxSpeed, verticSpeed - acceleration);
+            verticSpeed = Mathf.Max(-maxSpeed, (verticSpeed - acceleration) * -vertical);
         }
         else {
             if (verticSpeed > 0) verticSpeed = Mathf.Max(0, verticSpeed - deceleration);
@@ -201,4 +203,5 @@ public class PlayerMovement : MonoBehaviour {
         float angle = 10;
         angleToTeammate = (Vector3.Angle(transform.forward, transform.position - target));
     }
+
 }

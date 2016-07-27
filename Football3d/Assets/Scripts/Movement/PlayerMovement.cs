@@ -27,11 +27,13 @@ public class PlayerMovement : MonoBehaviour {
 
     //References
     private GameObject ball;
+    private Controls controls;
 
 	// Use this for initialization
 	void Start () {
         state = States.none;
         ball = GameObject.Find("Ball");
+        controls = GameObject.Find("GameManager").GetComponent<Controls>();
 
         if (playerNumber == 1) teammate = GameObject.Find("Player 2");
         else if (playerNumber == 2) teammate = GameObject.Find("Player 1");
@@ -45,16 +47,16 @@ public class PlayerMovement : MonoBehaviour {
         float pass = 0;
 
         if (playerNumber == 1) {
-            vertical = Input.GetAxisRaw("Vertical");
-            horizontal = Input.GetAxisRaw("Horizontal");
-            shoot = Input.GetAxisRaw("Fire1");
-            pass = Input.GetAxisRaw("Pass1");
+            vertical = Input.GetAxis("Vertical");
+            horizontal = Input.GetAxis("Horizontal");
+           // shoot = Input.GetAxis("Fire1");
+           // pass = Input.GetAxis("Pass1");
         }
         else if (playerNumber == 2) {
-            vertical = Input.GetAxisRaw("Vertical 2");
-            horizontal = Input.GetAxisRaw("Horizontal 2");
-            shoot = Input.GetAxisRaw("Fire2");
-            pass = Input.GetAxisRaw("Pass2");
+            vertical = Input.GetAxis("Vertical 2");
+            horizontal = Input.GetAxis("Horizontal 2");
+           // shoot = Input.GetAxis("Fire2");
+           // pass = Input.GetAxis("Pass2");
         }
         
         MovementManagement(horizontal, vertical);
@@ -65,7 +67,7 @@ public class PlayerMovement : MonoBehaviour {
             if (shoot > 0) {
                 Shoot();
             }
-            else if (pass > 0) {
+            else if ((Input.GetButtonDown(controls.RedTeamPlayerOnePass) && playerNumber == 1) || (Input.GetButtonDown(controls.RedTeamPlayerTwoPass) && playerNumber == 2)){
                 Pass();
             }
         }
@@ -84,9 +86,9 @@ public class PlayerMovement : MonoBehaviour {
 
         //Update speeds based on input
         if (horizontal > 0) {
-            horizSpeed = Mathf.Min(maxSpeed, horizSpeed + acceleration);
+            horizSpeed = Mathf.Min(maxSpeed, horizontal * (horizSpeed + acceleration));
         } else if (horizontal < 0) {
-            horizSpeed = Mathf.Max(-maxSpeed, horizSpeed - acceleration);
+            horizSpeed = Mathf.Max(-maxSpeed, -horizontal * (horizSpeed - acceleration));
         }
         else {
             if (horizSpeed > 0) horizSpeed = Mathf.Max(0, horizSpeed - deceleration);
@@ -94,10 +96,10 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         if (vertical > 0) {
-            verticSpeed = Mathf.Min(maxSpeed, verticSpeed + acceleration);
+            verticSpeed = Mathf.Min(maxSpeed, vertical * (verticSpeed + acceleration));
         }
         else if (vertical < 0) {
-            verticSpeed = Mathf.Max(-maxSpeed, verticSpeed - acceleration);
+            verticSpeed = Mathf.Max(-maxSpeed, -vertical * (verticSpeed - acceleration));
         }
         else {
             if (verticSpeed > 0) verticSpeed = Mathf.Max(0, verticSpeed - deceleration);

@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour {
     public float maxSpeed = 100.0f;  //Maximum velocity
     public float shootForce = 800f;
     public float passForce = 400f;
+    public float passAngle = 25f;
 
     //States
     public bool dribbling;
@@ -170,17 +171,36 @@ public class PlayerMovement : MonoBehaviour {
             ball.transform.SetParent(null);
             ballPhysics.isKinematic = false;
 
+            /*
             Vector3 shootVector = new Vector3();
+            float distance = Vector3.Distance(gameObject.transform.position, target);
             shootVector = target - ball.transform.position * passForce;
 
             ballPhysics.AddForce(shootVector);
+            */
+
+            ball.GetComponent<Rigidbody>().velocity = BallisticVelocity(passAngle);
             ball.GetComponent<Ball>().beShot();
             state = States.none;
         } else {
             state = States.turningToPass;
         }
     }
-   
+
+    Vector3 BallisticVelocity(float angle) {
+        Vector3 target = teammate.transform.position;
+
+        Vector3 dir = target - transform.position;
+        float h = dir.y;
+        dir.y = 0;
+        float dist = dir.magnitude;
+        float a = angle * Mathf.Deg2Rad;
+        dir.y = dist * Mathf.Tan(a);
+        dist += h / Mathf.Tan(a);
+        float vel = Mathf.Sqrt(dist * Physics.gravity.magnitude / Mathf.Sin(2 * a));
+        return vel * dir.normalized;
+    }
+  
     void CheckForBall() {
         Vector3 directionToBall = transform.position - GameObject.Find("Ball").transform.position;
         float angle = Vector3.Angle(transform.forward, directionToBall);

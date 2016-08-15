@@ -27,6 +27,8 @@ public class PlayerMovement : MonoBehaviour {
     public bool dribbling;
 
     //References
+    private GameObject gameManager;
+    private SoundManager soundManager;
     private GameObject ball;
     public GameObject particles;
 
@@ -34,6 +36,8 @@ public class PlayerMovement : MonoBehaviour {
 	void Start () {
         state = States.none;
         ball = GameObject.Find("Ball");
+        gameManager = GameObject.Find("GameManager");
+        soundManager = gameManager.GetComponent<SoundManager>();
 
         if (playerNumber == 1) teammate = GameObject.Find("Player 2");
         else if (playerNumber == 2) teammate = GameObject.Find("Player 1");
@@ -162,6 +166,7 @@ public class PlayerMovement : MonoBehaviour {
         state = States.none;
 
         particles.GetComponent<ParticleSystem>().Play();
+        soundManager.KickSound();
     }
 
     void Pass() {
@@ -177,6 +182,7 @@ public class PlayerMovement : MonoBehaviour {
             ball.GetComponent<Rigidbody>().velocity = BallisticVelocity(passAngle);
             state = States.none;
             particles.GetComponent<ParticleSystem>().Play();
+            soundManager.PassSound();
         } else {
             state = States.turningToPass;
         }

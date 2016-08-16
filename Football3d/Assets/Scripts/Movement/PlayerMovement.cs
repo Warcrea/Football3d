@@ -6,8 +6,11 @@ public class PlayerMovement : MonoBehaviour {
     private enum States {none, dribbling, turningToPass};
     private States state;
 
+    public enum Team {Blue, Red};
+    private int teamNumber = 0;
+    public Team team;
     public int playerNumber = 0;
-    private GameObject teammate;
+    public GameObject teammate;
     public float angleToTeammate;
 
     public float acceleration = 2f;  //Force applied when running
@@ -27,7 +30,8 @@ public class PlayerMovement : MonoBehaviour {
     public bool dribbling;
 
     //References
-    private GameObject gameManager;
+    private GameObject gameManagerObject;
+    private GameManager gameManager;
     private SoundManager soundManager;
     private GameObject ball;
     public GameObject particles;
@@ -35,13 +39,15 @@ public class PlayerMovement : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         state = States.none;
-        ball = GameObject.Find("Ball");
-        gameManager = GameObject.Find("GameManager");
+        ball = GameObject.FindGameObjectWithTag("Ball");
+        gameManagerObject = GameObject.Find("GameManager");
+        gameManager = gameManagerObject.GetComponent<GameManager>();
         soundManager = gameManager.GetComponent<SoundManager>();
+        gameObject.tag = team.ToString();
+        SetColourBasedOnTeam();
 
-        if (playerNumber == 1) teammate = GameObject.Find("Player 2");
-        else if (playerNumber == 2) teammate = GameObject.Find("Player 1");
-	}
+        teamNumber = (int)team + 1;
+    }
 
     // Update is called once per frame
     void Update() {
@@ -50,18 +56,12 @@ public class PlayerMovement : MonoBehaviour {
         float trigger = 0;
         bool bumper = false;
 
-        if (playerNumber == 1) {
-            vertical = Input.GetAxisRaw("Team1Player1Vertical");
-            horizontal = Input.GetAxisRaw("Team1Player1Horizontal");
-            trigger = Input.GetAxisRaw("Team1Player1Trigger");
-            bumper = Input.GetButtonDown("Team1Player1Bumper");
-        }
-        else if (playerNumber == 2) {
-            vertical = Input.GetAxisRaw("Team1Player2Vertical");
-            horizontal = Input.GetAxisRaw("Team1Player2Horizontal");
-            trigger = Input.GetAxisRaw("Team1Player2Trigger");
-            bumper = Input.GetButtonDown("Team1Player2Bumper");
-        }
+        int inputTeamNumber = teamNumber;
+        if (gameManager.linkedControls) { inputTeamNumber = 1; }
+        vertical = Input.GetAxisRaw("Team" + inputTeamNumber + "Player" + playerNumber + "Vertical");
+        horizontal = Input.GetAxisRaw("Team" + inputTeamNumber + "Player" + playerNumber + "Horizontal");
+        trigger = Input.GetAxisRaw("Team" + inputTeamNumber + "Player" + playerNumber + "Trigger");
+        bumper = Input.GetButtonDown("Team" + inputTeamNumber + "Player" + playerNumber + "Bumper");
         
         MovementManagement(horizontal, vertical);
         CalculateAngleToTeammate();
@@ -223,6 +223,15 @@ public class PlayerMovement : MonoBehaviour {
         Vector3 target = teammate.transform.position;
         float angle = 10;
         angleToTeammate = (Vector3.Angle(transform.forward, transform.position - target));
+    }
+
+    void SetColourBasedOnTeam() {
+        if (team == Team.Blue) {
+            GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
+        }
+        else if (team == Team.Red) {
+           GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+        }
     }
 
 }

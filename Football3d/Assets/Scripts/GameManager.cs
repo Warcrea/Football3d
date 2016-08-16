@@ -5,6 +5,8 @@ public class GameManager : MonoBehaviour {
 
     GameObject ball;
 
+    public bool linkedControls; //when true both teams are controlled by the same controller, useful for testing
+
     void Start() {
         ball = GameObject.Find("Ball");
     }

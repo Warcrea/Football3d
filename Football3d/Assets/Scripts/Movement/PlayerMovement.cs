@@ -6,7 +6,6 @@ public class PlayerMovement : MonoBehaviour {
     private enum States {none, dribbling, turningToPass};
     private States state;
 
-    public enum Team {Blue, Red};
     private int teamNumber = 0;
     public Team team;
     public int playerNumber = 0;
